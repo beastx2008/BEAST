@@ -19,11 +19,11 @@ from telegram.ext import (
 #  CONFIGURATION
 # ────────────────────────────────────────────────
 
-TOKEN = "123456789:AAExxxxxxxxxxxxxxxxxxxxxxxxxxxx"          # ← CHANGE THIS
+TOKEN = "8152750567:AAH71FPaotg7DE6py50XC3ykFK0rg31qKKI"          # ← CHANGE THIS
 
 # List of user IDs that are allowed to use admin commands
 # You can also manage this list inside the bot later
-SUDOERS = {123456789, 987654321}     # ← your user id(s) here
+SUDOERS = {-1003832564393}     # ← your user id(s) here
 
 # Bot will only respond to these commands in groups/supergroups
 ALLOWED_CHATS = filters.ChatType.GROUPS | filters.ChatType.SUPERGROUPS
