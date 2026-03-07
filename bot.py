@@ -2,6 +2,7 @@ import os
 import re
 import httpx
 import logging
+from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from telegram import Update, ChatPermissions
 from telegram.ext import (
@@ -12,7 +13,12 @@ from telegram.ext import (
     filters
 )
 
-BOT_TOKEN = os.getenv("8152750567:AAH71FPaotg7DE6py50XC3ykFK0rg31qKKI")
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # loads .env file
+
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 OWNER_ID = 6608532248
 
 logging.basicConfig(level=logging.INFO)
