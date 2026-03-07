@@ -12,7 +12,7 @@ from telegram.ext import (
     filters
 )
 
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+BOT_TOKEN = os.getenv("8152750567:AAH71FPaotg7DE6py50XC3ykFK0rg31qKKI")
 OWNER_ID = 6608532248
 
 logging.basicConfig(level=logging.INFO)
