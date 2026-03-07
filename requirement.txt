@@ -1,1 +1,1 @@
-psh
+pip install python-telegram-bot --upgrade
