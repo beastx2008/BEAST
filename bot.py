@@ -1,11 +1,13 @@
 import os
 import logging
-import asyncio
 import requests
 from dotenv import load_dotenv
 from telegram import Update, ChatPermissions
 from telegram.ext import (
-    ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes,
+    ApplicationBuilder,
+    CommandHandler,
+    MessageHandler,
+    ContextTypes,
     filters
 )
 
@@ -14,24 +16,25 @@ from telegram.ext import (
 # =========================
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
-ADMIN_ID = 6608532248  # Your admin Telegram ID
-ACCESS_LIST = {}  # user_id: list of allowed commands
-BANNED_WORDS = ["spamword1", "🙄"]  # add banned words here
 
-# GitHub script links
+ADMIN_ID = 6608532248
+ACCESS_LIST = {}
+BANNED_WORDS = ["spamword1", "🙄"]
+
+# GitHub raw script links
 SCRIPTS = {
     "R": "https://raw.githubusercontent.com/beastx2008/BEAST/main/r.py",
     "W": "https://raw.githubusercontent.com/beastx2008/BEAST/main/w.py",
     "ST": "https://raw.githubusercontent.com/beastx2008/BEAST/main/st.py",
-    "D":
-"https://github.com/beastx2008/BEAST/blob/main/d.py",
+    "D": "https://raw.githubusercontent.com/beastx2008/BEAST/main/d.py",
 }
 
 # =========================
 # Logging
 # =========================
 logging.basicConfig(
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    level=logging.INFO
 )
 logger = logging.getLogger(__name__)
 
@@ -39,7 +42,6 @@ logger = logging.getLogger(__name__)
 # Helper functions
 # =========================
 async def run_github_script(url):
-    """Fetch and execute a GitHub script dynamically."""
     try:
         r = requests.get(url, timeout=30)
         r.raise_for_status()
@@ -47,80 +49,74 @@ async def run_github_script(url):
         exec(code, {"__name__": "__main__"})
         return "✅ Script executed successfully."
     except Exception as e:
-        return f"❌ Failed to execute script: {e}"
+        return f"❌ Script failed: {e}"
 
 def user_has_access(user_id, command):
-    """Check if a user can run a command."""
     return user_id == ADMIN_ID or command in ACCESS_LIST.get(user_id, [])
 
 # =========================
-# Command Handlers
+# Basic Commands
 # =========================
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("ELITE X online. Use /help to see commands.")
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    msg = """Available Commands:
+    msg = """
+Available Commands:
 /R - Run resolutions scanner
 /W - Run war lock scanner
-/ST <war_id> <country1> <country2> - Track contributor speed
-/mute <@user> [time] - Mute user (default 1 day)
-/ban <@user> - Ban user
-/unban <@user> - Unban user
-/giveaccess <command> <@user> - Grant command access
-/revokeaccess <command> <@user> - Revoke command access
-/status - Show bot status
+/ST - Track contributor speed
+/mute - Mute user
+/giveaccess - Grant command
+/revokeaccess - Remove command
+/status - Bot status
 """
     await update.message.reply_text(msg)
 
 async def status(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Beast X Bot is online and monitoring the group.")
+    await update.message.reply_text("Beast X Bot is running.")
 
 # =========================
-# Script commands (/R, /W, /ST)
+# Script commands
 # =========================
 async def script_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    cmd = update.message.text.strip().split()[0][1:].upper()  # /R -> R
+    cmd = update.message.text.split()[0][1:].upper()
     user_id = update.message.from_user.id
 
     if not user_has_access(user_id, cmd):
-        await update.message.reply_text("❌ You don't have access to this command.")
+        await update.message.reply_text("❌ You don't have access.")
         return
 
     if cmd not in SCRIPTS:
-        await update.message.reply_text("❌ Unknown script command.")
+        await update.message.reply_text("❌ Unknown command.")
         return
 
     msg = await run_github_script(SCRIPTS[cmd])
     await update.message.reply_text(msg)
 
 # =========================
-# Admin commands
+# Admin: Mute
 # =========================
 async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.message.from_user.id
-    if user_id != ADMIN_ID:
-        await update.message.reply_text("❌ Only the admin can mute.")
+    if update.message.from_user.id != ADMIN_ID:
+        await update.message.reply_text("❌ Admin only.")
         return
 
-    if not context.args:
-        await update.message.reply_text("Usage: /mute @username [time]")
+    if not update.message.reply_to_message:
+        await update.message.reply_text("Reply to a user to mute them.")
         return
 
-    target = update.message.reply_to_message.from_user if update.message.reply_to_message else None
-    if not target:
-        await update.message.reply_text("❌ Reply to a user to mute them.")
-        return
+    target = update.message.reply_to_message.from_user
+    duration = 86400
 
-    duration = 86400  # default 1 day in seconds
-    if len(context.args) > 1:
-        try:
-            t = context.args[1].lower()
-            if t.endswith("m"): duration = int(t[:-1]) * 60
-            elif t.endswith("h"): duration = int(t[:-1]) * 3600
-            elif t.endswith("d"): duration = int(t[:-1]) * 86400
-        except:
-            pass
+    if context.args:
+        t = context.args[0]
+        if t.endswith("m"):
+            duration = int(t[:-1]) * 60
+        elif t.endswith("h"):
+            duration = int(t[:-1]) * 3600
+        elif t.endswith("d"):
+            duration = int(t[:-1]) * 86400
 
     await context.bot.restrict_chat_member(
         chat_id=update.effective_chat.id,
@@ -128,76 +124,81 @@ async def mute(update: Update, context: ContextTypes.DEFAULT_TYPE):
         permissions=ChatPermissions(can_send_messages=False),
         until_date=int(update.message.date.timestamp()) + duration
     )
-    await update.message.reply_text(f"✅ {target.full_name} muted for {duration//3600}h.")
 
+    await update.message.reply_text(f"🔇 {target.full_name} muted.")
+
+# =========================
+# Admin: Access control
+# =========================
 async def giveaccess(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.message.from_user.id
-    if user_id != ADMIN_ID:
-        await update.message.reply_text("❌ Only the admin can give access.")
+    if update.message.from_user.id != ADMIN_ID:
         return
-    if len(context.args) < 2:
-        await update.message.reply_text("Usage: /giveaccess <command> <@user>")
+
+    if not update.message.reply_to_message or not context.args:
+        await update.message.reply_text("Usage: reply + /giveaccess COMMAND")
         return
+
     cmd = context.args[0].upper()
-    target = update.message.entities[1].user
+    target = update.message.reply_to_message.from_user
+
     ACCESS_LIST.setdefault(target.id, []).append(cmd)
-    await update.message.reply_text(f"✅ {target.full_name} granted access to {cmd}")
+
+    await update.message.reply_text(f"✅ {target.full_name} granted {cmd}")
 
 async def revokeaccess(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_id = update.message.from_user.id
-    if user_id != ADMIN_ID:
-        await update.message.reply_text("❌ Only the admin can revoke access.")
+    if update.message.from_user.id != ADMIN_ID:
         return
-    if len(context.args) < 2:
-        await update.message.reply_text("Usage: /revokeaccess <command> <@user>")
+
+    if not update.message.reply_to_message or not context.args:
+        await update.message.reply_text("Usage: reply + /revokeaccess COMMAND")
         return
+
     cmd = context.args[0].upper()
-    target = update.message.entities[1].user
+    target = update.message.reply_to_message.from_user
+
     if target.id in ACCESS_LIST and cmd in ACCESS_LIST[target.id]:
         ACCESS_LIST[target.id].remove(cmd)
-    await update.message.reply_text(f"✅ {target.full_name} access to {cmd} revoked")
+
+    await update.message.reply_text(f"❌ {cmd} removed from {target.full_name}")
 
 # =========================
-# Respond to mentions
+# Mention response
 # =========================
 async def mention_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    text = update.message.text.lower()
-    if "beast_x_bot" in text:
-        await update.message.reply_text("yo nigga what you need")
+    if "beast_x_bot" in update.message.text.lower():
+        await update.message.reply_text("Yes? What do you need?")
 
 # =========================
 # Spam filter
 # =========================
 async def spam_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text.lower()
+
     if any(word in text for word in BANNED_WORDS):
         await update.message.delete()
-        await update.message.reply_text(f"⚠️ {update.message.from_user.full_name}, banned word detected!")
+        await update.message.reply_text("⚠️ Banned word detected.")
 
 # =========================
 # Main
 # =========================
-async def main():
+def main():
+
     app = ApplicationBuilder().token(TOKEN).build()
 
-    # Core commands
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
     app.add_handler(CommandHandler("status", status))
-    app.add_handler(CommandHandler(["R","W","ST"], script_command))
 
-    # Admin commands
+    app.add_handler(CommandHandler(["R", "W", "ST", "D"], script_command))
+
     app.add_handler(CommandHandler("mute", mute))
     app.add_handler(CommandHandler("giveaccess", giveaccess))
     app.add_handler(CommandHandler("revokeaccess", revokeaccess))
 
-    # Messages
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, mention_response))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, spam_filter))
 
-    await app.start()
-    await app.updater.start_polling()
-    await app.idle()
+    app.run_polling()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
