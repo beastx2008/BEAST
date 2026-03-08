@@ -23,6 +23,8 @@ SCRIPTS = {
     "W": "https://raw.githubusercontent.com/beastx2008/BEAST/main/w.py",
     "ST": "https://raw.githubusercontent.com/beastx2008/BEAST/main/st.py",
     "D": "https://raw.githubusercontent.com/beastx2008/BEAST/main/d.py",
+    "D1":
+"https://github.com/beastx2008/BEAST/blob/main/D1.py"
 }
 
 # =========================
