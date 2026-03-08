@@ -22,7 +22,9 @@ BANNED_WORDS = ["spamword1", "🙄"]  # add banned words here
 SCRIPTS = {
     "R": "https://raw.githubusercontent.com/beastx2008/BEAST/main/r.py",
     "W": "https://raw.githubusercontent.com/beastx2008/BEAST/main/w.py",
-    "ST": "https://raw.githubusercontent.com/beastx2008/BEAST/main/st.py"
+    "ST": "https://raw.githubusercontent.com/beastx2008/BEAST/main/st.py",
+    "D":
+"https://github.com/beastx2008/BEAST/blob/main/d.py",
 }
 
 # =========================
