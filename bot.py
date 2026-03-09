@@ -22,10 +22,10 @@ SCRIPTS = {
     "R": "https://raw.githubusercontent.com/beastx2008/BEAST/main/r.py",
     "W": "https://raw.githubusercontent.com/beastx2008/BEAST/main/w.py",
     "ST": "https://raw.githubusercontent.com/beastx2008/BEAST/main/st.py",
-    "D": "https://raw.githubusercontent.com/beastx2008/BEAST/main/d.py",
-    "D1":
+    "w": "https://raw.githubusercontent.com/beastx2008/BEAST/main/d.py",
+    "w1":
 "https://github.com/beastx2008/BEAST/blob/main/D1.py",
-    "DX":
+    "wx":
 "https://github.com/beastx2008/BEAST/blob/main/dx.py"
 }
 
