@@ -14,7 +14,7 @@ from telegram.request import HTTPXRequest
 #                            BOT CONFIGURATION
 ###############################################################################
 import os
-TOKEN = os.environ.get("TOKEN")
+TOKEN = "8686030589:AAFXWTIk9aVvls3Cm2RNkr6ZSIZaM6QJUHw"
 
 ###############################################################################
 #                         CONVERSATION STATES
